@@ -2,10 +2,10 @@
     {
         "module": "../mbed-os-build",
         "size": {
-            ".text": 34817,
+            ".text": 39288,
             ".data": 473,
-            ".bss": 6722,
-            ".text-delta": 728,
+            ".bss": 6730,
+            ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -13,10 +13,10 @@
     {
         "module": "BUILD/K66F",
         "size": {
-            ".text": 1951,
-            ".data": 0,
-            ".bss": 828,
-            ".text-delta": 205,
+            ".text": 3176,
+            ".data": 16,
+            ".bss": 1604,
+            ".text-delta": -32,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -24,10 +24,10 @@
     {
         "module": "[fill]",
         "size": {
-            ".text": 206,
+            ".text": 232,
             ".data": 11,
             ".bss": 37,
-            ".text-delta": -1,
+            ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -35,10 +35,10 @@
     {
         "module": "[lib]/c.a",
         "size": {
-            ".text": 42068,
+            ".text": 35394,
             ".data": 2472,
             ".bss": 89,
-            ".text-delta": 7082,
+            ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -46,10 +46,10 @@
     {
         "module": "[lib]/gcc.a",
         "size": {
-            ".text": 3876,
+            ".text": 3336,
             ".data": 0,
             ".bss": 0,
-            ".text-delta": 540,
+            ".text-delta": 0,
             ".data-delta": 0,
             ".bss-delta": 0
         }
@@ -78,10 +78,10 @@
     },
     {
         "summary": {
-            "static_ram": 10664,
+            "static_ram": 11464,
             "static_ram_delta": 0,
-            "total_flash": 86090,
-            "total_flash_delta": 8554
+            "total_flash": 84614,
+            "total_flash_delta": -32
         }
     }
 ]
