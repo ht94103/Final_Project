@@ -25,48 +25,44 @@ void xbee_rx(void);
 void GoStraightPing(int DistanceCm);
 void GoStraight(int DistanceCm);
 void TurnLeft();
+void TurnLeft1();
 void TurnRight();
 void TakePicture();
 void ReverseParking();
 void recieve_thread();
 void send_thread();
-void st();
-void tp();
+void Scan();
 
-int k=0;
-
+int k=1; //1:GoStraightPing, 2:GoStraight, 3:TurnLeft, 4:TurnRight, 5:TakePicture, 6:ReverseParking, 7:Scan
 
 int main() {
 
-    //uart.baud(9600);
+    uart.baud(9600);
     xbee.baud(9600);
     
     xbee_thread.start(callback(&xbee_queue, &EventQueue::dispatch_forever));
     xbee.attach(xbee_rx_interrupt, Serial::RxIrq);
-    //Receive.start(recieve_thread);
-    //pc.printf("Hello, world! Test\n");
-    //xbee.printf("Hello, world!");
     
-    //tp();
-
-
-    /*GoStraightPing(50);
+    GoStraightPing(125);
     TurnLeft();
-    GoStraightPing(10);
+    GoStraightPing(30);
+    TurnRight();
     TakePicture();
-    GoStraightPing(50);
+    GoStraightPing(40);
     ReverseParking();
-    GoStraight(70);
+    GoStraight(55);
     TurnRight();
-    GoStraightPing(100);
+    GoStraightPing(110);
     TurnRight();
-    GoStraightPing(70);
+    GoStraight(50);
     Scan();
+    GoStraight(20);
     TurnRight();
-    GoStraightPing(100);*/
+    GoStraightPing(140);
 }
 
 void GoStraightPing(int DistanceCm){
+    k = 1;
     encoder0.reset();
 
     while(encoder0.get_cm()<DistanceCm){
@@ -85,6 +81,7 @@ void GoStraightPing(int DistanceCm){
 }
 
 void GoStraight(int DistanceCm){
+    k = 2;
     encoder0.reset();
 
     car.goStraight(100);
@@ -92,57 +89,76 @@ void GoStraight(int DistanceCm){
     car.stop();
 }
 
-
 void TurnLeft(){
+    k = 3;
     wait(0.5);
     car.TurnL(100);
-    wait(1.1);
+    wait(1.2);
+    car.stop();
+    wait(0.5);
+}
+
+void TurnLeft1(){
+    wait(0.5);
+    car.TurnL(100);
+    wait(1.4);
     car.stop();
     wait(0.5);
 }
 
 void TurnRight(){
+    k = 4;
     wait(0.5);
     car.TurnR(100);
-    wait(1.1);
+    wait(1.2);
     car.stop();
     wait(0.5);
 }
 
 void TakePicture(){
+    k = 5;
+    wait(0.5);
     encoder0.reset();
 
-    car.goStraight(100);
-    while(encoder0.get_cm()<20) wait_ms(50);
+    car.goStraight(-100);
+    while(encoder0.get_cm()<30) wait_ms(50);
     car.stop();
     Send.start(send_thread);
-    wait(0.5);
+    wait(5);
     GoStraight(15);
     TurnLeft();
 }
 
 void ReverseParking(){
+    k = 6;
     TurnRight();
 
+    k = 6;
     encoder0.reset();
     car.goStraight(-100);
-    while(encoder0.get_cm()<10) wait_ms(50);
+    while(encoder0.get_cm()<40) wait_ms(50);
     car.stop();
-    wait(1);
-
-    GoStraight(10);
     wait(0.5);
+
+    encoder0.reset();
+    car.goStraight(100);
+    while(encoder0.get_cm()<30) wait_ms(50);
+    car.stop();
+    wait(0.3);
 
     TurnRight();
 }
 
 void Scan(){
+    k = 7;
     int i;
     TurnLeft();
 
+    k = 7;
     car.goStraight(-100);
-    wait(0.5);
+    wait(4);
     car.stop();
+    wait(0.5);
 
     car.goStraight(50);
     float Distance[10]={0};
@@ -159,25 +175,31 @@ void Scan(){
     }
 
     i=i+1;
-    if (Distance[i]-Distance[i+1]>0.5){
-        if (Distance[i+2]-Distance[i+3]>0.5){
-            // Wedge
+    if (Distance[i]-Distance[i+1]>1){
+        if (Distance[i+2]-Distance[i+3]>1){
+            pc.printf("Wedge\r\n");
         }
-        else if (Distance[i+2]-Distance[i+3]<0.5){
-            // Triangle
-        }
-    }
-
-    else if (Distance[i]-Distance[i+1]<0.5){
-        if (Distance[i+2]-Distance[i+3]<0.5){
-            // Square
+        else if (Distance[i+3]-Distance[i+2]>1){
+            pc.printf("Triangle\r\n");
         }
     }
 
-    else {
-        // Complement of Triangle
+    else if ((Distance[i]-Distance[i+1]<1)&&(Distance[i]-Distance[i+1]>-1)){
+        if ((Distance[i+2]-Distance[i+3]<1)&&(Distance[i+2]-Distance[i+3]>-1)){
+            pc.printf("Square\r\n");
+        }
     }
 
+    else if ((Distance[i+1]-Distance[i]>1)&&(Distance[i+2]-Distance[i+3]>1)){
+        pc.printf("Complement of Triangle\r\n");
+    }
+
+    else{
+        pc.printf("Can't be identified.\r\n");
+    }
+
+    wait(0.5);
+    car.stop();
     TurnRight();
 }
 
@@ -191,49 +213,20 @@ void recieve_thread(){
    }
 }
 
-// **************** Test for scanning
-void st(){
-    car.goStraight(50);
-    for (int i=0; i<10; i++){
-        pc.printf("%f\r\n", (float)ping1);
-        wait(0.5);
-    }
-    car.stop(); 
-}
-
-// **************** Test for taking picture
-void tp(){
-    //wait(3);
-    char s[2];
-    sprintf(s,"image_classification");
-    uart.puts(s);
-    pc.printf("send\r\n");
-    if(uart.readable()){
-            char recv = uart.getc();
-            pc.putc(recv);
-            pc.printf("\r\n");
-      }
-    //wait(5);
-}
-
 void send_thread(){
     char s[21];
     sprintf(s,"image_classification");
     uart.puts(s);
-    pc.printf("send\r\n");
+    //pc.printf("send\r\n");
     wait(0.5);    
 }
 
 void xbee_rx_interrupt(void){
-    //pc.printf("Hello1\n");
     xbee.attach(NULL, Serial::RxIrq); // detach interrupt
-    //pc.printf("Hello2\n");
     xbee_queue.call(&xbee_rx);
 }
 
-
 void xbee_rx(void){
-    //pc.printf("Hello3\n");
 
     char buf[100] = {0};
     char outbuf[100] = {0};
@@ -243,15 +236,34 @@ void xbee_rx(void){
             if (recv == '\r') {
                 break;
             }
-            buf[i] = pc.putc(recv);//recv; 
+            buf[i] = recv;
         }
         pc.printf("%s\r\n", outbuf);
         RPC::call(buf, outbuf);
         wait(0.1);
-        //xbee.printf("Hello, world!\r\n");
-        //pc.printf("Hello, world!\n");
+        
+        if (k == 1){
+            pc.printf("GoStraightPing");
+        }
+        if (k == 2){
+            pc.printf("GoStraight");
+        }
+        if (k == 3){
+            pc.printf("TurnLeft");
+        }
+        if (k == 4){
+            pc.printf("TurnRight");
+        }
+        if (k == 5){
+            pc.printf("TakePicture");
+        }
+        if (k == 6){
+            pc.printf("ReverseParking");
+        }
+        if (k == 7){
+            pc.printf("Scan");
+        }
+        
     }
-
-    //xbee.printf("Hello, world!\r\n");
     xbee.attach(xbee_rx_interrupt, Serial::RxIrq);
 }

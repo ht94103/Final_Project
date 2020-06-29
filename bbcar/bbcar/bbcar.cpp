@@ -24,13 +24,13 @@ void BBCar::goStraight( double speed ){
 }
 
 void BBCar::moveL( double speed ){
-    servo0.set_speed(speed/1.5);
+    servo0.set_speed(speed/1.3);
     servo1.set_speed(-speed);
 }
 
 void BBCar::moveR( double speed ){
     servo0.set_speed(speed);
-    servo1.set_speed(-speed/1.5);
+    servo1.set_speed(-speed/1.3);
 }
 
 void BBCar::TurnL( double speed ){

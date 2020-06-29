@@ -7,7 +7,7 @@ s = serial.Serial(serdev, 9600)
 while(1):
     s.write("/myled1/write 1\r".encode())
     print("1st")
-    #line = s.readline()
+    #line = s.read(1)
     #print(line)
     #print("1st")
     time.sleep(1)
